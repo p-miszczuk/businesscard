@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>Clock</title>
+<script type="text/javascript">
+	
+
+
+document.addEventListener("DOMContentLoaded",function(){
+	const canvas = document.querySelector("#can");
+	const ctx = canvas.getContext('2d');
+	
+	let angle = Math.PI/2;
+
+	ctx.translate(200,200);
+	ctx.rotate(-angle);
+
+	function draw()
+	{
+		let date = new Date();
+		let sec = date.getSeconds();
+		let mn = date.getMinutes();
+		let hr = date.getHours();
+
+		if (hr > 11)
+			hr = hr-12;
+		
+		ctx.clearRect(-200,-200,canvas.width,canvas.height);
+		clockFace();
+
+
+		ctx.save();
+		ctx.rotate(radianAngleHours(hr)+radianAngle(mn)/12);
+		ctx.beginPath();
+		ctx.moveTo(-20,0);
+		ctx.lineTo(110,0);
+		ctx.lineWidth = 2;
+		ctx.strokeStyle = "white";
+		ctx.stroke();
+		ctx.restore();
+
+		ctx.save();
+		ctx.rotate(radianAngle(mn)+radianAngle(sec)/90);
+		ctx.beginPath();
+		ctx.moveTo(-20,0);
+		ctx.lineTo(130,0);
+		ctx.lineWidth = 2;
+		ctx.strokeStyle = "white";
+		ctx.stroke();
+		ctx.restore();
+		
+		ctx.save();
+		ctx.rotate(radianAngle(sec));
+		ctx.beginPath();
+		ctx.moveTo(-20,0);
+		ctx.lineTo(145,0);
+		ctx.lineWidth = 2;
+		ctx.strokeStyle = "white";
+		ctx.stroke();
+		ctx.restore();
+
+		setTimeout(function(){
+			draw();
+		},1000);
+	}
+
+
+	function clockFace()
+	{
+		ctx.beginPath();
+		ctx.arc(0,0,180,0,2*Math.PI,false);
+		ctx.lineWidth = 2;
+		ctx.strokeStyle = "red";
+		ctx.stroke();
+
+		ctx.save();
+		ctx.rotate(angle);
+		drawNumbers(ctx,90);
+		ctx.restore();
+		
+		ctx.save();
+		ctx.rotate(angle);
+		drawLines(ctx);
+		ctx.restore();
+
+		ctx.beginPath();
+		ctx.arc(0,0,5,0,2*Math.PI,false);
+		ctx.fillStyle = "white";
+		ctx.fill();
+		ctx.closePath();
+	}
+
+	function drawNumbers(ctx, r) 
+	{
+		  let ang;
+		  ctx.font = r*0.2 + "px arial";
+		  ctx.textBaseline = "middle";
+		  ctx.textAlign = "center";
+		  
+		  for (i = 1; i < 13; i++) {
+		    ang = i * Math.PI / 6;
+		    ctx.rotate(ang);
+		    ctx.translate(0, -160);
+		    ctx.rotate(-ang);
+		    ctx.fillText(i, 0, 0);
+		    ctx.rotate(ang);
+		    ctx.translate(0, 160);
+		    ctx.rotate(-ang);
+		  }
+	}
+
+	function drawLines(ctx)
+	{
+		for (i=0; i<60; i++) {
+			
+			if (i%5 != 0)	{	
+				ctx.beginPath();
+				ctx.moveTo(0,-153);
+				ctx.lineTo(0,-160);
+				ctx.stroke();
+			}
+			
+				ctx.rotate(Math.PI/30);
+			
+		}
+	}
+
+	function radianAngle(angle)
+	{
+		return Math.PI/30*angle+0.10;
+	}
+	function radianAngleHours(angle)
+	{
+		return 0.5235987755982988*angle;
+	}
+	
+	draw();
+	
+	
+});
+
+</script>
+<style type="text/css">
+	
+canvas
+{
+	background-color: black;
+	
+}
+
+
+</style>
+
+</head>
+<body>
+<canvas id="can" width="400" height="400">
+	Bla  bla
+</canvas>
+
+<div class="test"></div>
+</body>
+</html>

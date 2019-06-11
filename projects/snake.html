@@ -1,0 +1,292 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>Snake</title>
+	<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+	<script type="text/javascript">
+
+	var canvas;
+	var ctx;
+	var snake=[];
+	var snake_wh=20;
+	var timer;
+	var direction = "";
+	var allCode=true;
+	var numberOfFood=0;
+	var foodX=0;
+	var foodY=0;
+	var img, tail, head;
+	var score=0;
+	var ready=true;
+	var repeat=true;
+
+
+	function init()
+	{
+		
+			snake.push({
+				x : 1,
+				y : 3
+			});
+		
+		img = new Image();
+		img.src = "jablko.jpg";
+
+		tail = new Image();
+		tail.src="kwadrat.jpg";
+
+		head = new Image();
+		head.src="glowa.jpg";
+		
+
+	}
+
+	function drawAraound()
+	{
+		var xPos=0;
+		var yPos=0;
+		for(i=0; i<30; i++)
+		{
+		
+			if(i<24 && i>2)
+			{
+				ctx.fillStyle="yellow";
+				ctx.fillRect(0,i*20,20,20);
+
+				ctx.strokeStyle="black";
+				ctx.strokeRect(0,i*20,20,20);
+
+				ctx.fillStyle="yellow";
+				ctx.fillRect(580,i*20,20,20);
+
+				ctx.strokeStyle="black";
+				ctx.strokeRect(580,i*20,20,20);
+			}
+			
+			ctx.fillStyle="yellow";
+			ctx.fillRect(i*20,40,20,20);
+
+			ctx.strokeStyle="black";
+			ctx.strokeRect(i*20,40,20,20);
+
+			ctx.fillStyle="yellow";
+			ctx.fillRect(i*20,480,20,20);
+
+			ctx.strokeStyle="black";
+			ctx.strokeRect(i*20,480,20,20);
+			
+		}
+	}
+
+	function draw()
+	{
+		ctx.clearRect(0,0,canvas.width,canvas.height);
+		
+
+		drawAraound();
+
+		document.addEventListener("keydown",(e)=>{
+			e=e || window.event;
+			
+			
+			if(e.keyCode=='39' && direction!="left" && allCode==true)
+			{
+				direction = "right"; allCode=false;
+			}
+			else if(e.keyCode=='37'  && direction!="right" && allCode==true)
+			{
+				direction = "left"; allCode=false;
+			}
+			else if(e.keyCode=='40'  && direction!="up" && allCode==true)
+			{
+				direction = "down"; allCode=false;
+			} 
+			else if(e.keyCode=='38'  && direction!="down" && allCode==true)
+			{
+				direction = "up"; allCode=false;
+			}
+		});
+
+
+
+		if(numberOfFood==0)
+		{
+			numberOfFood=1;
+			foodX = Math.floor(Math.random()*28)+1;
+			foodY = Math.floor(Math.random()*20)+3;
+			
+		}
+
+		
+
+		ctx.drawImage(img,foodX*snake_wh,foodY*snake_wh,20,20);
+
+		var snakeX = snake[0].x;
+		var snakeY = snake[0].y;
+
+		if(direction=="right") snakeX++;
+		else if(direction=="left") snakeX--;
+		else if(direction=="up") snakeY--;
+		else if(direction=="down") snakeY++;
+
+		
+		var snakeXpos = snake[0].x*snake_wh+10;
+		var snakeYpos = snake[0].y*snake_wh+10;
+		var foodXpos = foodX*snake_wh+10;
+		var foodYpos = foodY*snake_wh+10;
+
+		var eatFood = eat(snakeXpos,snakeYpos,foodXpos,foodYpos);
+		if(eatFood<20)
+		{
+			numberOfFood=0;
+			var newHead =
+			{
+				x : snakeX,
+				y : snakeY
+			};
+			score+=5;
+			
+		}
+		else
+		{
+			snake.pop();
+			var newHead =
+			{
+				x : snakeX,
+				y : snakeY
+			};
+		
+		}
+		scores(score);
+		
+		//set new head
+		snake.unshift(newHead);
+
+		notEatYourself(newHead.x*snake_wh, newHead.y*snake_wh);
+		colision(newHead.x*snake_wh, newHead.y*snake_wh);
+
+		for(i=0; i<snake.length; i++)
+		{
+			var x = snake[i].x;
+			var y = snake[i].y;
+			drawSnake(x,y);
+		}
+
+		allCode=true;
+	}
+
+	function drawSnake(x,y)
+	{
+		var image = i==0 ? head : tail;
+		ctx.drawImage(image,x*snake_wh,y*snake_wh);
+		//ctx.fillRect(x*snake_wh,y*snake_wh,snake_wh, snake_wh);
+
+		//ctx.strokeStyle="black";
+		//ctx.strokeRect(x*snake_wh,y*snake_wh,snake_wh, snake_wh);
+	}
+
+	function colision(x,y)
+	{
+		if(x<20 || x+snake_wh>canvas.width-20 || y<60 || y+snake_wh>canvas.height-20)
+		{
+			direction="";
+			repeat=true;
+			clearInterval(timer);
+		}
+	}
+
+	function notEatYourself(x,y)
+	{
+		for(i=1; i<snake.length; i++)
+		{
+			
+			if(x==snake[i].x*snake_wh && y==snake[i].y*snake_wh)
+			{
+				repeat=true;
+				direction="";
+				clearInterval(timer);
+			}
+		}
+	}
+
+	function eat(x,y,fx,fy)
+	{
+		return Math.sqrt(Math.pow((fx-x),2)+(Math.pow((fy-y),2)));	
+	}
+
+	function drawFood(x,y)
+	{
+		ctx.fillStyle="red";
+		ctx.fillRect(x*snake_wh,y*snake_wh,snake_wh,snake_wh);
+	}
+ 
+	function scores(point)
+	{
+		ctx.font = "15px Arial";
+		ctx.fillStyle = "white";
+		ctx.fillText("Scores: "+point,10,20);
+	}
+
+	function reset()
+	{
+		if(repeat==true)
+		{
+			repeat=false;
+		snake=[];
+		var newHead =
+			{
+				x : 1,
+				y : 3
+			};
+		allCode=true;
+		score=0;
+		snake.unshift(newHead);
+		direction="";
+		timer = setInterval(draw,150);
+		}
+	}
+
+
+	document.addEventListener("DOMContentLoaded",function(){
+		canvas = document.querySelector('#can');
+		ctx = canvas.getContext('2d');
+		//document.getElementById("sc").innerHTML="Scores: "+score;
+
+		init();
+		
+		timer=setInterval(draw,150);
+		
+		//requestAnimationFrame(moveSnakevar
+	});
+
+
+
+	</script>
+	<style type="text/css">
+
+		body
+		{	
+			text-align: center;
+			background-color: #ccc;
+		}
+		#can
+		{
+			background-color: black;
+			border-radius: 10px;
+		}
+		button
+		{
+			position: absolute;
+			top: 12px;
+			left: 67%;
+		}
+	</style>
+</head>
+<body>
+	<button onclick="reset()">Reset</button>
+	<canvas id="can" width="600" height="500" style="border: 1px solid yellow" style="background-color: black">
+		
+	</canvas>
+
+</body>
+</html>

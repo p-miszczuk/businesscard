@@ -1,0 +1,10 @@
+RewriteEngine on
+# Ustawienie strony głównej
+DirectoryIndex index.html
+
+RewriteCond %{HTTP} off
+RewriteRule (.*) http://%{HTTP_HOST}%{REQUEST_URI} [R,L]
+
+RewriteRule ^welcome index.html
+
+ErrorDocument 404 http://piotrmiszczuk.pl
