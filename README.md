@@ -1,3 +1,1 @@
-# businesscard
-# businesscard
 # my businesscard
